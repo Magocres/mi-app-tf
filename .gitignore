@@ -1,0 +1,30 @@
+# Ignorar directorios y archivos de Terraform
+.terraform/
+
+# Ignorar archivos de estado de Terraform
+*.tfstate
+*.tfstate.*
+
+# Ignorar archivos de respaldo y lock
+*.tfvars
+*.tfvars.json
+*.lock.hcl
+
+# Ignorar archivos de provider
+**/.terraform/providers/
+
+# Ignorar archivos de configuración específicos
+.terraform.lock.hcl
+
+# Ignorar archivos de log de Terraform
+*.log
+
+# Ignorar archivos temporales
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignorar archivos de sistemas operativos
+.DS_Store        # macOS
+Thumbs.db        # Windows
