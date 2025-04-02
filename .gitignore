@@ -22,7 +22,6 @@
 # Ignorar archivos temporales
 *.swp
 *.swo
-*.bak
 *.tmp
 
 # Ignorar archivos de sistemas operativos
