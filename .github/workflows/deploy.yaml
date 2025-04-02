@@ -1,7 +1,6 @@
 name: Deploy Terraform to AWS
 
 on:
-<<<<<<< HEAD
   workflow_dispatch:
     inputs:
       # Working directory input from user.
