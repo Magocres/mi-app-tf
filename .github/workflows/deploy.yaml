@@ -3,23 +3,21 @@ name: Deploy Terraform to AWS
 on:
   workflow_dispatch:
     inputs:
-      # Working directory input from user.
       resource:
         type: choice
         description: Choose the resource
         options:
-        - prod
-        - dev
-      # Terraform action you want to perform
+          - prod
+          - dev
       action:
-        description: 'Terraform Action to Perform'
         type: choice
+        description: 'Terraform Action to Perform'
         options:
-        - Terraform_apply
-        - Terraform_destroy
-  #push:
-  #  branches:
-  #    - main
+          - Terraform_apply
+          - Terraform_destroy
+  push:
+    branches:
+      - main
 
 jobs:
   terraform_apply:
@@ -48,61 +46,53 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.REGION }}
 
   terraform_destroy:
-    name: "Destroy AWS"
+    name: "Terraform Destroy"
+    if: ${{ github.event.inputs.action == 'Terraform_destroy' }}
     runs-on: ubuntu-latest
     steps:
-        - name: AWS Plan Copy
-          run: aws s3 cp s3://your-bucket/yourapp-${{ github.event.inputs.env }}.tfstate terraform.tfstate
-          id: copy
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_DEFAULT_REGION: ${{ secrets.REGION }}
+      - name: AWS Plan Copy
+        run: aws s3 cp s3://your-bucket/yourapp-${{ github.event.inputs.resource }}.tfstate terraform.tfstate
+        id: copy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.REGION }}
 
-        - name: Show Destroy plan
-          run: terraform plan -destroy
-          continue-on-error: true
+      - name: Show Destroy plan
+        run: terraform plan -destroy
+        continue-on-error: true
 
-        - name: Destroy resources jobs
-          id: destroy
-          run: terraform destroy -auto-approve
+      - name: Destroy resources jobs
+        id: destroy
+        run: terraform destroy -auto-approve
 
-        - name: Delete plan file
-          if: steps.destroy.outcome == 'success'
-          run: aws s3 rm s3://your-bucket/yourapp-${{ github.event.inputs.env }}.tfstate
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_DEFAULT_REGION: ${{ secrets.REGION }}
+      - name: Delete plan file
+        if: steps.destroy.outcome == 'success'
+        run: aws s3 rm s3://your-bucket/yourapp-${{ github.event.inputs.resource }}.tfstate
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.REGION }}
 
-  workflow_dispatch: # Ejecutar cuando se inicia manualmente
-  
-  push:
-    branches:
-      - main  # Ejecutar solo cuando haya cambios en la rama principal
-
-jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout del código
-      uses: actions/checkout@v3
+      - name: Checkout del código
+        uses: actions/checkout@v3
 
-    - name: Configurar AWS CLI
-    
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN}}
-        aws-region: us-east-1
+      - name: Configurar AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
 
-    - name: Instalar Terraform
-      uses: hashicorp/setup-terraform@v2
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
 
-    - name: Inicializar Terraform
-      run: terraform init
+      - name: Inicializar Terraform
+        run: terraform init
 
-    - name: Aplicar Terraform
-      run: terraform apply -auto-approve
+      - name: Aplicar Terraform
+        run: terraform apply -auto-approve
