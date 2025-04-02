@@ -23,7 +23,6 @@
 *.swp
 *.swo
 *.tmp
-
 # Ignorar archivos de sistemas operativos
 .DS_Store        # macOS
 Thumbs.db        # Windows
