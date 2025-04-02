@@ -41,6 +41,7 @@ jobs:
         run: terraform init
 
       - name: Aplicar Terraform (si se selecciona Terraform_apply)
+        if: ${{ github.event.inputs.action == 'Terraform_apply' }}
         run: terraform apply -auto-approve -var-file=variables.tfvars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
