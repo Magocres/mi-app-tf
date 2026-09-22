@@ -1,2 +1,2 @@
 # mi-app-tf
-Ejemplo práctivo clase de CLOUD
+Ejemplo práctico clase de CLOUD
